@@ -1,5 +1,5 @@
 ### Gradle ###
-.gradle
+.gradle/
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/**/build/
@@ -11,7 +11,6 @@ build/
 *.ipr
 out/
 !**/src/**/out/
-
 .run/
 
 ### Eclipse ###
@@ -34,7 +33,20 @@ bin/
 
 ### Minecraft Modding ###
 run/
+runs/
 !**/src/**/run/
 **/src/generated/**/.cache/
 repo/
 !**/src/**/repo/
+logs/
+crash-reports/
+*.log
+*.hprof
+
+### Secrets and Environment ###
+.env
+.env.*
+
+### Local AI Agent & Temporary Clones ###
+.agent/
+freetime/

@@ -1,0 +1,8 @@
+{
+  "key.sandevistan.category": "Sandevistan Overdrive",
+  "key.sandevistan.activate": "Activate Sandevistan",
+  "key.sandevistan.dash": "Sandevistan Dash",
+  "hud.sandevistan.ready": "SANDEVISTAN: READY",
+  "hud.sandevistan.active": "SANDEVISTAN: ACTIVE (%ss)",
+  "hud.sandevistan.cooldown": "SANDEVISTAN: COOLDOWN (%ss)"
+}
