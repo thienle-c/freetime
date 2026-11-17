@@ -1,16 +1,16 @@
 package com.sandevistan.config;
 
-import net.neoforged.neoforge.common.ModConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class ModConfig {
 
     public static class Common {
-        public final ModConfigSpec.IntValue activeDurationTicks;
-        public final ModConfigSpec.IntValue cooldownTicks;
-        public final ModConfigSpec.DoubleValue speedMultiplier;
+        public final ForgeConfigSpec.IntValue activeDurationTicks;
+        public final ForgeConfigSpec.IntValue cooldownTicks;
+        public final ForgeConfigSpec.DoubleValue speedMultiplier;
 
-        public Common(ModConfigSpec.Builder builder) {
+        public Common(ForgeConfigSpec.Builder builder) {
             builder.comment("Sandevistan Overdrive - Server & Gameplay Configuration")
                    .push("gameplay");
 
@@ -31,11 +31,11 @@ public class ModConfig {
     }
 
     public static class Client {
-        public final ModConfigSpec.BooleanValue hudEnabled;
-        public final ModConfigSpec.IntValue hudX;
-        public final ModConfigSpec.IntValue hudY;
+        public final ForgeConfigSpec.BooleanValue hudEnabled;
+        public final ForgeConfigSpec.IntValue hudX;
+        public final ForgeConfigSpec.IntValue hudY;
 
-        public Client(ModConfigSpec.Builder builder) {
+        public Client(ForgeConfigSpec.Builder builder) {
             builder.comment("Sandevistan Overdrive - Client Configuration")
                    .push("hud");
 
@@ -56,16 +56,16 @@ public class ModConfig {
     }
 
     public static final Common COMMON;
-    public static final ModConfigSpec COMMON_SPEC;
+    public static final ForgeConfigSpec COMMON_SPEC;
     public static final Client CLIENT;
-    public static final ModConfigSpec CLIENT_SPEC;
+    public static final ForgeConfigSpec CLIENT_SPEC;
 
     static {
-        Pair<Common, ModConfigSpec> commonSpecPair = new ModConfigSpec.Builder().configure(Common::new);
+        Pair<Common, ForgeConfigSpec> commonSpecPair = new ForgeConfigSpec.Builder().configure(Common::new);
         COMMON = commonSpecPair.getLeft();
         COMMON_SPEC = commonSpecPair.getRight();
 
-        Pair<Client, ModConfigSpec> clientSpecPair = new ModConfigSpec.Builder().configure(Client::new);
+        Pair<Client, ForgeConfigSpec> clientSpecPair = new ForgeConfigSpec.Builder().configure(Client::new);
         CLIENT = clientSpecPair.getLeft();
         CLIENT_SPEC = clientSpecPair.getRight();
     }

@@ -1,46 +1,42 @@
-# Sandevistan Overdrive
+# Sandevistan Overdrive (Forge 1.20.1)
 
-A high-speed cybernetic ability mod for Minecraft Java Edition 1.21.1 built on NeoForge.
+[![Minecraft](https://img.shields.io/badge/Minecraft-1.20.1-brightgreen.svg)](https://www.minecraft.net/)
+[![Forge](https://img.shields.io/badge/Forge-47.4.4-blue.svg)](https://files.minecraftforge.net/)
+[![Java](https://img.shields.io/badge/Java-17%20LTS-blue.svg)](https://openjdk.org/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+A high-speed cybernetic ability mod for **Minecraft Java Edition 1.20.1** built on **Minecraft Forge 47.4.4** and **Java 17**.
 
 ---
 
 ## 1. Overview
 - **Mod Name:** Sandevistan Overdrive
 - **Mod ID:** `sandevistan`
-- **Minecraft Version:** 1.21.1
-- **Mod Loader:** NeoForge (21.1.235+)
-- **Language:** Java 21
-- **Build System:** Gradle (NeoGradle userdev 7.1.38)
+- **Minecraft Version:** 1.20.1
+- **Mod Loader:** Minecraft Forge (47.4.4+)
+- **Language:** Java 17 LTS
+- **Build System:** Gradle (ForgeGradle 6.0)
 - **Version:** 0.1.0
 
 ---
 
-## 2. Features
+## 2. Features (Phase 1 — Foundation)
 
-### Currently Implemented (Phase 1)
-- **Keybind Activation (`V`):** Toggle rapid neural acceleration with key `V`. Pressing `V` while active allows manual cancellation.
-- **Server-Authoritative State:** Managed via NeoForge Data Attachments (`AttachmentType`) and custom network payloads.
+- **Keybind Activation (`V`):** Toggle rapid neural acceleration with key `V`. Pressing `V` while active allows manual early cancellation.
+- **Server-Authoritative State:** Managed via official Forge Capabilities (`ICapabilitySerializable<CompoundTag>`) and synchronized across network boundaries using Forge `SimpleChannel`.
   - Active Duration: Default 8.0s (160 ticks).
   - Cooldown: Default 20.0s (400 ticks).
   - Lifecycle: `READY` -> `ACTIVE` -> `COOLDOWN` -> `READY`.
-- **Transient Speed Attribute:** +300% movement speed modifier applied transiently without corrupting player data.
+- **Transient Speed Attribute:** +300% movement speed modifier applied transiently (`AttributeModifier.Operation.MULTIPLY_BASE`) via persistent UUID.
 - **Clean State Reset:** Automatic modifier removal on death, respawn, disconnect, or dimension switch.
-- **Cybernetic HUD Overlay:** Real-time on-screen status display with countdown timer and visual charge meter.
-- **Automated Tests:** Unit test suite covering all state transitions and timer logic.
-
-### Planned Features
-- **Phase 2 (Movement & Dash):** Directional quick-dash (`R`) with raycast collision safety.
-- **Phase 3 (Local Time Dilation):** Entity and projectile deceleration within an area of effect.
-- **Phase 4 (Visual & Audio):** Motion trails, electric particles, and sound effects.
-- **Phase 5 (Hardware Tiers):** Multiple cyberware tiers with varied stats and tuning.
-- **Phase 6 (Multiplayer Optimization):** Conflict resolution for overlapping active fields and balance passes.
+- **Cybernetic HUD Overlay:** Real-time on-screen status display registered via Forge `RegisterGuiOverlaysEvent` / `IGuiOverlay` with countdown timer and visual charge meter.
+- **Automated Tests:** Built-in JUnit 5 unit test suite covering all state transitions and timer logic.
 
 ---
 
 ## 3. Requirements
-- Minecraft 1.21.1
-- NeoForge 21.1.235 or newer
-- Java 21 (64-bit JDK/JRE)
+- Minecraft `1.20.1` with [Minecraft Forge](https://files.minecraftforge.net/net/minecraftforge/forge/index_1.20.1.html) `47.4.4` or newer.
+- Java 17 (64-bit JDK/JRE).
 
 ---
 
@@ -51,14 +47,15 @@ A high-speed cybernetic ability mod for Minecraft Java Edition 1.21.1 built on N
 ---
 
 ## 5. Configuration
-Configuration files are saved in `.minecraft/config/`:
-- `sandevistan-server.toml`: `activeDurationTicks`, `cooldownTicks`, `speedMultiplier`
+Configuration files are automatically generated in `.minecraft/config/`:
+- `sandevistan-common.toml`: `activeDurationTicks`, `cooldownTicks`, `speedMultiplier`
 - `sandevistan-client.toml`: `hudEnabled`, `hudX`, `hudY`
 
 ---
 
 ## 6. Build Instructions
-Build the jar file using Gradle:
+Build the jar file using Gradle with Java 17:
+
 - Windows:
   ```powershell
   .\gradlew.bat clean build
@@ -74,10 +71,10 @@ Run unit tests:
 ```
 
 Compiled jar location:
-`build/libs/sandevistan-0.1.0.jar`
+`build/libs/sandevistan-1.20.1-0.1.0.jar` (or `sandevistan-0.1.0.jar`)
 
 ---
 
 ## 7. Status & Limitations
-- Phase 1 verified via unit tests and successful jar build.
-- Visual afterimages and projectile slowing are planned for subsequent phases.
+- Phase 1 backport to Forge 1.20.1 verified via unit tests, full jar compilation, and dedicated server startup.
+- Phase 2 (Dash) and Phase 3 (Time Dilation) are planned for subsequent phases.

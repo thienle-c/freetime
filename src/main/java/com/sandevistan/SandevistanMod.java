@@ -1,13 +1,17 @@
 package com.sandevistan;
 
+import com.sandevistan.client.SandevistanClient;
 import com.sandevistan.config.ModConfig;
-import com.sandevistan.core.ModAttachments;
+import com.sandevistan.core.SandevistanCapability;
+import com.sandevistan.core.SandevistanController;
 import com.sandevistan.network.ModNetworking;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.loading.FMLEnvironment;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,31 +20,28 @@ public class SandevistanMod {
     public static final String MOD_ID = "sandevistan";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
-    public SandevistanMod(IEventBus modEventBus, ModContainer modContainer) {
-        LOGGER.info("Initializing Sandevistan Overdrive mod...");
+    public SandevistanMod() {
+        LOGGER.info("Initializing Sandevistan Overdrive for Minecraft Forge 1.20.1...");
+
+        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         // Register configuration specifications
-        modContainer.registerConfig(net.neoforged.fml.config.ModConfig.Type.COMMON, ModConfig.COMMON_SPEC);
-        modContainer.registerConfig(net.neoforged.fml.config.ModConfig.Type.CLIENT, ModConfig.CLIENT_SPEC);
+        ModLoadingContext.get().registerConfig(net.minecraftforge.fml.config.ModConfig.Type.COMMON, ModConfig.COMMON_SPEC);
+        ModLoadingContext.get().registerConfig(net.minecraftforge.fml.config.ModConfig.Type.CLIENT, ModConfig.CLIENT_SPEC);
 
-        // Register custom player data attachments
-        ModAttachments.ATTACHMENT_TYPES.register(modEventBus);
+        // Register capabilities
+        modEventBus.addListener(SandevistanCapability::register);
 
-        // Register network payloads on mod event bus
-        modEventBus.addListener(ModNetworking::registerPayloads);
+        // Register networking
+        ModNetworking.register();
 
-        // Client-specific initialization
-        if (FMLEnvironment.dist == Dist.CLIENT) {
-            ClientInit.init(modEventBus);
-        }
+        // Register game event listeners
+        MinecraftForge.EVENT_BUS.register(SandevistanController.class);
+        MinecraftForge.EVENT_BUS.register(SandevistanCapability.class);
 
-        LOGGER.info("Sandevistan Overdrive initialized successfully.");
-    }
+        // Client initialization
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> SandevistanClient.init(modEventBus));
 
-    private static class ClientInit {
-        private static void init(IEventBus modEventBus) {
-            modEventBus.addListener(com.sandevistan.client.ClientKeybindings::registerKeys);
-            modEventBus.addListener(com.sandevistan.client.SandevistanHUD::registerGuiLayers);
-        }
+        LOGGER.info("Sandevistan Overdrive (Forge 1.20.1) initialized successfully.");
     }
 }

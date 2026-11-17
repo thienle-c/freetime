@@ -1,18 +1,18 @@
 package com.sandevistan.network;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.fml.loading.FMLEnvironment;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 
 public class ClientPayloadBridge {
-    public static void handleSyncState(SyncStatePayload payload) {
+    public static void handleSyncState(SyncStatePacket packet) {
         if (FMLEnvironment.dist == Dist.CLIENT) {
-            ClientDelegate.syncState(payload);
+            ClientDelegate.syncState(packet);
         }
     }
 
     private static class ClientDelegate {
-        private static void syncState(SyncStatePayload payload) {
-            com.sandevistan.client.SandevistanClient.handleStateSync(payload);
+        private static void syncState(SyncStatePacket packet) {
+            com.sandevistan.client.SandevistanClient.handleStateSync(packet);
         }
     }
 }

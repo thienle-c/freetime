@@ -1,7 +1,6 @@
 package com.sandevistan.core;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.nbt.CompoundTag;
 
 public class SandevistanState {
 
@@ -10,26 +9,6 @@ public class SandevistanState {
         ACTIVE,
         COOLDOWN
     }
-
-    public static final Codec<SandevistanState> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.fieldOf("state").forGetter(s -> s.getState().name()),
-            Codec.INT.fieldOf("activeTicksRemaining").forGetter(SandevistanState::getActiveTicksRemaining),
-            Codec.INT.fieldOf("totalActiveTicks").forGetter(SandevistanState::getTotalActiveTicks),
-            Codec.INT.fieldOf("cooldownTicksRemaining").forGetter(SandevistanState::getCooldownTicksRemaining),
-            Codec.INT.fieldOf("totalCooldownTicks").forGetter(SandevistanState::getTotalCooldownTicks)
-    ).apply(instance, (stateName, activeRem, activeTot, cdRem, cdTot) -> {
-        SandevistanState state = new SandevistanState();
-        try {
-            state.setState(State.valueOf(stateName));
-        } catch (IllegalArgumentException e) {
-            state.setState(State.READY);
-        }
-        state.setActiveTicksRemaining(activeRem);
-        state.setTotalActiveTicks(activeTot);
-        state.setCooldownTicksRemaining(cdRem);
-        state.setTotalCooldownTicks(cdTot);
-        return state;
-    }));
 
     private State state = State.READY;
     private int activeTicksRemaining = 0;
@@ -120,6 +99,36 @@ public class SandevistanState {
         this.totalActiveTicks = 0;
         this.cooldownTicksRemaining = 0;
         this.totalCooldownTicks = 0;
+    }
+
+    public void copyFrom(SandevistanState other) {
+        this.state = other.state;
+        this.activeTicksRemaining = other.activeTicksRemaining;
+        this.totalActiveTicks = other.totalActiveTicks;
+        this.cooldownTicksRemaining = other.cooldownTicksRemaining;
+        this.totalCooldownTicks = other.totalCooldownTicks;
+    }
+
+    public CompoundTag serializeNBT() {
+        CompoundTag tag = new CompoundTag();
+        tag.putString("state", state.name());
+        tag.putInt("activeTicksRemaining", activeTicksRemaining);
+        tag.putInt("totalActiveTicks", totalActiveTicks);
+        tag.putInt("cooldownTicksRemaining", cooldownTicksRemaining);
+        tag.putInt("totalCooldownTicks", totalCooldownTicks);
+        return tag;
+    }
+
+    public void deserializeNBT(CompoundTag tag) {
+        try {
+            this.state = State.valueOf(tag.getString("state"));
+        } catch (Exception e) {
+            this.state = State.READY;
+        }
+        this.activeTicksRemaining = tag.getInt("activeTicksRemaining");
+        this.totalActiveTicks = tag.getInt("totalActiveTicks");
+        this.cooldownTicksRemaining = tag.getInt("cooldownTicksRemaining");
+        this.totalCooldownTicks = tag.getInt("totalCooldownTicks");
     }
 
     /**
