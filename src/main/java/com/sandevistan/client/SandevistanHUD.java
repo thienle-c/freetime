@@ -2,25 +2,17 @@ package com.sandevistan.client;
 
 import com.sandevistan.config.ModConfig;
 import com.sandevistan.core.SandevistanState;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
-import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
+import net.minecraftforge.client.gui.overlay.ForgeGui;
+import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 
-public class SandevistanHUD {
+public class SandevistanHUD implements IGuiOverlay {
+    public static final SandevistanHUD INSTANCE = new SandevistanHUD();
 
-    public static void registerGuiLayers(RegisterGuiLayersEvent event) {
-        event.registerAbove(
-                VanillaGuiLayers.HOTBAR,
-                ResourceLocation.fromNamespaceAndPath(com.sandevistan.SandevistanMod.MOD_ID, "hud"),
-                SandevistanHUD::render
-        );
-    }
-
-    public static void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+    @Override
+    public void render(ForgeGui gui, GuiGraphics guiGraphics, float partialTick, int screenWidth, int screenHeight) {
         if (!ModConfig.CLIENT.hudEnabled.get()) {
             return;
         }
