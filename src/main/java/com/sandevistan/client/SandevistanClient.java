@@ -2,6 +2,7 @@ package com.sandevistan.client;
 
 import com.sandevistan.core.SandevistanState;
 import com.sandevistan.network.ActivatePacket;
+import com.sandevistan.network.DashPacket;
 import com.sandevistan.network.ModNetworking;
 import com.sandevistan.network.SyncStatePacket;
 import net.minecraft.client.Minecraft;
@@ -39,6 +40,10 @@ public class SandevistanClient {
         CLIENT_STATE.setTotalActiveTicks(packet.getTotalActiveTicks());
         CLIENT_STATE.setCooldownTicksRemaining(packet.getCooldownTicksRemaining());
         CLIENT_STATE.setTotalCooldownTicks(packet.getTotalCooldownTicks());
+        CLIENT_STATE.setDashCharges(packet.getDashCharges());
+        CLIENT_STATE.setMaxDashCharges(packet.getMaxDashCharges());
+        CLIENT_STATE.setDashCooldownTicksRemaining(packet.getDashCooldownTicksRemaining());
+        CLIENT_STATE.setTotalDashCooldownTicks(packet.getTotalDashCooldownTicks());
     }
 
     @SubscribeEvent
@@ -54,6 +59,19 @@ public class SandevistanClient {
 
         while (ClientKeybindings.KEY_ACTIVATE.consumeClick()) {
             ModNetworking.sendToServer(new ActivatePacket());
+        }
+
+        while (ClientKeybindings.KEY_DASH.consumeClick()) {
+            if (CLIENT_STATE.isActive() && mc.player.isAlive() && !mc.player.isSpectator()) {
+                if (CLIENT_STATE.getDashCharges() > 0) {
+                    float forward = mc.player.input.up ? 1.0f : (mc.player.input.down ? -1.0f : 0.0f);
+                    float strafe = mc.player.input.left ? 1.0f : (mc.player.input.right ? -1.0f : 0.0f);
+                    boolean jumping = mc.player.input.jumping;
+                    float yaw = mc.player.getYRot();
+
+                    ModNetworking.sendToServer(new DashPacket(forward, strafe, jumping, yaw));
+                }
+            }
         }
 
         CLIENT_STATE.tick();

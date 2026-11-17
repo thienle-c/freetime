@@ -34,6 +34,12 @@ public class ModNetworking {
                 .decoder(SyncStatePacket::decode)
                 .consumerMainThread(SyncStatePacket::handle)
                 .add();
+
+        CHANNEL.messageBuilder(DashPacket.class, nextId(), NetworkDirection.PLAY_TO_SERVER)
+                .encoder(DashPacket::encode)
+                .decoder(DashPacket::decode)
+                .consumerMainThread(DashPacket::handle)
+                .add();
     }
 
     public static void sendToServer(Object msg) {

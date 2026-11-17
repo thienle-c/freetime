@@ -38,6 +38,7 @@ public class SandevistanMod {
         // Register game event listeners
         MinecraftForge.EVENT_BUS.register(SandevistanController.class);
         MinecraftForge.EVENT_BUS.register(SandevistanCapability.class);
+        MinecraftForge.EVENT_BUS.register(com.sandevistan.dilation.TimeDilationController.class);
 
         // Client initialization
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> SandevistanClient.init(modEventBus));

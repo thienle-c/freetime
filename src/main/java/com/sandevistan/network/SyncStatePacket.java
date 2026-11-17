@@ -11,13 +11,22 @@ public class SyncStatePacket {
     private final int totalActiveTicks;
     private final int cooldownTicksRemaining;
     private final int totalCooldownTicks;
+    private final int dashCharges;
+    private final int maxDashCharges;
+    private final int dashCooldownTicksRemaining;
+    private final int totalDashCooldownTicks;
 
-    public SyncStatePacket(String stateName, int activeTicksRemaining, int totalActiveTicks, int cooldownTicksRemaining, int totalCooldownTicks) {
+    public SyncStatePacket(String stateName, int activeTicksRemaining, int totalActiveTicks, int cooldownTicksRemaining, int totalCooldownTicks,
+                           int dashCharges, int maxDashCharges, int dashCooldownTicksRemaining, int totalDashCooldownTicks) {
         this.stateName = stateName;
         this.activeTicksRemaining = activeTicksRemaining;
         this.totalActiveTicks = totalActiveTicks;
         this.cooldownTicksRemaining = cooldownTicksRemaining;
         this.totalCooldownTicks = totalCooldownTicks;
+        this.dashCharges = dashCharges;
+        this.maxDashCharges = maxDashCharges;
+        this.dashCooldownTicksRemaining = dashCooldownTicksRemaining;
+        this.totalDashCooldownTicks = totalDashCooldownTicks;
     }
 
     public String getStateName() {
@@ -40,17 +49,41 @@ public class SyncStatePacket {
         return totalCooldownTicks;
     }
 
+    public int getDashCharges() {
+        return dashCharges;
+    }
+
+    public int getMaxDashCharges() {
+        return maxDashCharges;
+    }
+
+    public int getDashCooldownTicksRemaining() {
+        return dashCooldownTicksRemaining;
+    }
+
+    public int getTotalDashCooldownTicks() {
+        return totalDashCooldownTicks;
+    }
+
     public static void encode(SyncStatePacket msg, FriendlyByteBuf buf) {
         buf.writeUtf(msg.stateName);
         buf.writeVarInt(msg.activeTicksRemaining);
         buf.writeVarInt(msg.totalActiveTicks);
         buf.writeVarInt(msg.cooldownTicksRemaining);
         buf.writeVarInt(msg.totalCooldownTicks);
+        buf.writeVarInt(msg.dashCharges);
+        buf.writeVarInt(msg.maxDashCharges);
+        buf.writeVarInt(msg.dashCooldownTicksRemaining);
+        buf.writeVarInt(msg.totalDashCooldownTicks);
     }
 
     public static SyncStatePacket decode(FriendlyByteBuf buf) {
         return new SyncStatePacket(
                 buf.readUtf(),
+                buf.readVarInt(),
+                buf.readVarInt(),
+                buf.readVarInt(),
+                buf.readVarInt(),
                 buf.readVarInt(),
                 buf.readVarInt(),
                 buf.readVarInt(),

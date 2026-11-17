@@ -28,7 +28,7 @@ public class SandevistanHUD implements IGuiOverlay {
         int x = ModConfig.CLIENT.hudX.get();
         int y = ModConfig.CLIENT.hudY.get();
         int width = 140;
-        int height = 24;
+        int height = state.isActive() ? 36 : 24;
 
         int borderColor = switch (state.getState()) {
             case ACTIVE -> 0xFF00FF66;   // Neon green
@@ -53,10 +53,25 @@ public class SandevistanHUD implements IGuiOverlay {
                     ? (float) state.getActiveTicksRemaining() / state.getTotalActiveTicks()
                     : 0f;
             int barWidth = (int) ((width - 16) * Math.max(0f, Math.min(1f, progress)));
-            guiGraphics.fill(x + 8, y + 16, x + width - 8, y + 19, 0x4400FF66);
+            guiGraphics.fill(x + 8, y + 14, x + width - 8, y + 17, 0x4400FF66);
             if (barWidth > 0) {
-                guiGraphics.fill(x + 8, y + 16, x + 8 + barWidth, y + 19, 0xFF00FF66);
+                guiGraphics.fill(x + 8, y + 14, x + 8 + barWidth, y + 17, 0xFF00FF66);
             }
+
+            // Phase 2: Dash status line
+            int charges = state.getDashCharges();
+            int maxCharges = state.getMaxDashCharges();
+            String dashText;
+            int dashColor;
+            if (charges > 0) {
+                dashText = String.format("DASH [R]: %d/%d READY", charges, maxCharges);
+                dashColor = 0x00F3FF;
+            } else {
+                float dashSec = Math.max(0f, state.getDashCooldownTicksRemaining() / 20.0f);
+                dashText = String.format("DASH [R]: 0/%d (%.1fs)", maxCharges, dashSec);
+                dashColor = 0xFFAA00;
+            }
+            guiGraphics.drawString(font, dashText, x + 8, y + 22, dashColor, true);
         } else if (state.isCooldown()) {
             float seconds = Math.max(0f, state.getCooldownTicksRemaining() / 20.0f);
             String text = String.format("COOLDOWN: %.1fs", seconds);

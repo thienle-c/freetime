@@ -117,5 +117,76 @@ class SandevistanStateTest {
         assertEquals(0, state.getTotalActiveTicks());
         assertEquals(0, state.getCooldownTicksRemaining());
         assertEquals(0, state.getTotalCooldownTicks());
+        assertEquals(0, state.getDashCharges());
+    }
+
+    @Test
+    @DisplayName("Dash charges are initialized upon activation")
+    void testDashChargesInitialization() {
+        assertFalse(state.canDash());
+        assertEquals(0, state.getDashCharges());
+
+        state.activate(160, 400, 3, 15);
+        assertTrue(state.canDash());
+        assertEquals(3, state.getDashCharges());
+        assertEquals(3, state.getMaxDashCharges());
+        assertEquals(0, state.getDashCooldownTicksRemaining());
+        assertEquals(15, state.getTotalDashCooldownTicks());
+    }
+
+    @Test
+    @DisplayName("Consuming dash charges reduces available charges and starts recharge cooldown")
+    void testDashChargeConsumption() {
+        state.activate(160, 400, 2, 20);
+
+        assertTrue(state.consumeDashCharge(20));
+        assertEquals(1, state.getDashCharges());
+        assertEquals(20, state.getDashCooldownTicksRemaining());
+        assertTrue(state.canDash());
+
+        assertTrue(state.consumeDashCharge(20));
+        assertEquals(0, state.getDashCharges());
+        assertFalse(state.canDash());
+
+        // Attempting to dash with 0 charges fails
+        assertFalse(state.consumeDashCharge(20));
+        assertEquals(0, state.getDashCharges());
+    }
+
+    @Test
+    @DisplayName("Dash charges recharge over ticks while Sandevistan is ACTIVE")
+    void testDashChargeRechargeOverTicks() {
+        state.activate(100, 400, 2, 5);
+        state.consumeDashCharge(5);
+        state.consumeDashCharge(5);
+        assertEquals(0, state.getDashCharges());
+
+        // Advance 5 ticks
+        for (int i = 0; i < 5; i++) {
+            state.tick();
+        }
+        assertEquals(1, state.getDashCharges());
+
+        // Advance another 5 ticks
+        for (int i = 0; i < 5; i++) {
+            state.tick();
+        }
+        assertEquals(2, state.getDashCharges());
+        assertEquals(0, state.getDashCooldownTicksRemaining());
+    }
+
+    @Test
+    @DisplayName("Cannot dash when in READY or COOLDOWN")
+    void testCannotDashWhenNotActive() {
+        assertFalse(state.canDash());
+        assertFalse(state.consumeDashCharge(20));
+
+        state.activate(160, 400, 2, 20);
+        state.deactivate();
+
+        assertTrue(state.isCooldown());
+        assertFalse(state.canDash());
+        assertFalse(state.consumeDashCharge(20));
+        assertEquals(0, state.getDashCharges());
     }
 }

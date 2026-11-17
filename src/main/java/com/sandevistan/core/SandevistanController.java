@@ -3,6 +3,7 @@ package com.sandevistan.core;
 import com.sandevistan.SandevistanMod;
 import com.sandevistan.ability.SpeedAbility;
 import com.sandevistan.config.ModConfig;
+import com.sandevistan.dilation.TimeDilationController;
 import com.sandevistan.network.ModNetworking;
 import com.sandevistan.network.SyncStatePacket;
 import net.minecraft.server.level.ServerPlayer;
@@ -26,10 +27,14 @@ public class SandevistanController {
             if (state.isReady()) {
                 int duration = ModConfig.COMMON.activeDurationTicks.get();
                 int cooldown = ModConfig.COMMON.cooldownTicks.get();
+                int maxDashCharges = ModConfig.COMMON.dashMaxCharges.get();
+                int dashCooldown = ModConfig.COMMON.dashCooldownTicks.get();
                 double speedMultiplier = ModConfig.COMMON.speedMultiplier.get();
 
-                state.activate(duration, cooldown);
+                state.activate(duration, cooldown, maxDashCharges, dashCooldown);
                 SpeedAbility.applySpeedModifier(player, speedMultiplier);
+                TimeDilationController.registerActivePlayer(player);
+                TimeDilationController.scanSurroundings(player);
                 syncToPlayer(player, state);
 
                 LOGGER.debug("Player {} activated Sandevistan (duration: {} ticks, cooldown: {} ticks)",
@@ -37,6 +42,7 @@ public class SandevistanController {
             } else if (state.isActive()) {
                 state.deactivate();
                 SpeedAbility.removeSpeedModifier(player);
+                TimeDilationController.unregisterActivePlayer(player);
                 syncToPlayer(player, state);
 
                 LOGGER.debug("Player {} manually deactivated Sandevistan", player.getScoreboardName());
@@ -52,7 +58,11 @@ public class SandevistanController {
                         state.getActiveTicksRemaining(),
                         state.getTotalActiveTicks(),
                         state.getCooldownTicksRemaining(),
-                        state.getTotalCooldownTicks()
+                        state.getTotalCooldownTicks(),
+                        state.getDashCharges(),
+                        state.getMaxDashCharges(),
+                        state.getDashCooldownTicksRemaining(),
+                        state.getTotalDashCooldownTicks()
                 )
         );
     }
@@ -70,6 +80,7 @@ public class SandevistanController {
                 if (transitioned) {
                     if (state.isCooldown()) {
                         SpeedAbility.removeSpeedModifier(player);
+                        TimeDilationController.unregisterActivePlayer(player);
                         syncToPlayer(player, state);
                         LOGGER.debug("Player {} Sandevistan expired -> entering COOLDOWN", player.getScoreboardName());
                     } else if (state.isReady()) {
@@ -81,6 +92,13 @@ public class SandevistanController {
                         if (!SpeedAbility.hasSpeedModifier(player)) {
                             SpeedAbility.applySpeedModifier(player, ModConfig.COMMON.speedMultiplier.get());
                         }
+
+                        // Spatial scan surrounding entities for time dilation
+                        int scanInterval = ModConfig.COMMON.dilationScanIntervalTicks.get();
+                        if (state.getActiveTicksRemaining() % scanInterval == 0) {
+                            TimeDilationController.scanSurroundings(player);
+                        }
+
                         if (state.getActiveTicksRemaining() % 5 == 0) {
                             syncToPlayer(player, state);
                         }
@@ -98,6 +116,7 @@ public class SandevistanController {
     public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             SpeedAbility.removeSpeedModifier(player);
+            TimeDilationController.unregisterActivePlayer(player);
         }
     }
 
@@ -105,6 +124,7 @@ public class SandevistanController {
     public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             SpeedAbility.removeSpeedModifier(player);
+            TimeDilationController.unregisterActivePlayer(player);
             player.getCapability(SandevistanCapability.CAPABILITY).ifPresent(state -> {
                 state.reset();
                 syncToPlayer(player, state);
@@ -115,9 +135,12 @@ public class SandevistanController {
     @SubscribeEvent
     public static void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
+            TimeDilationController.unregisterActivePlayer(player);
             player.getCapability(SandevistanCapability.CAPABILITY).ifPresent(state -> {
                 if (state.isActive()) {
                     SpeedAbility.applySpeedModifier(player, ModConfig.COMMON.speedMultiplier.get());
+                    TimeDilationController.registerActivePlayer(player);
+                    TimeDilationController.scanSurroundings(player);
                 } else {
                     SpeedAbility.removeSpeedModifier(player);
                 }

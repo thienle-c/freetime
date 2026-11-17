@@ -17,7 +17,16 @@ public class ClientKeybindings {
             KEY_CATEGORY
     );
 
+    public static final KeyMapping KEY_DASH = new KeyMapping(
+            "key.sandevistan.dash",
+            KeyConflictContext.IN_GAME,
+            InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_R,
+            KEY_CATEGORY
+    );
+
     public static void registerKeys(RegisterKeyMappingsEvent event) {
         event.register(KEY_ACTIVATE);
+        event.register(KEY_DASH);
     }
 }
